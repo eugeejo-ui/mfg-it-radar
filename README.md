@@ -4,8 +4,10 @@
 
 ## 문서
 
+- 문서 체계 (어떤 문서가 어디에 있는지): [docs/README.md](docs/README.md)
 - 서비스 명세: [docs/spec/SPEC.md](docs/spec/SPEC.md)
 - 전체 계획: [docs/plans/00-master-plan.md](docs/plans/00-master-plan.md)
+- 원본 데이터 참조: [docs/data-sources.md](docs/data-sources.md)
 - 데이터 결합 스키마: [docs/data-schema.md](docs/data-schema.md)
 - 단계·작업별 계획과 결과: [docs/plans/](docs/plans/)
 

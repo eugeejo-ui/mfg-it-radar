@@ -180,12 +180,19 @@ tests/  fixtures/(DART 응답 JSON, 키 제거)  test_*.py
 - 문서는 개조식 어미(~함, ~임)로 씀. SPEC 14장의 `docs/progress/` 기록은 이 문서들이 대신함
 - 같은 규칙을 프로젝트 `CLAUDE.md`에 적어 다음 세션에서도 따르게 함
 
+- 문서 종류·작성 시점·이름 규칙의 기준은 `docs/README.md`(문서 체계)이고, 양식은 `docs/plans/_templates/`에 있음
+
 ```
 docs/
+  README.md                       문서 체계
   spec/SPEC.md                    원본 명세 사본
+  data-sources.md                 원본 데이터 참조 (엑셀 5개 상세)
   data-schema.md                  결합 스키마
+  guides/                         사람이 따라 하는 절차 (DART 키 등)
+  stitch/                         M2 Stitch 핸드오프
   plans/
     00-master-plan.md             전체 계획 (이 문서)
+    _templates/                   단계·작업 계획서 양식
     M0-setup/
       phase-plan.md               단계 상세 계획 → 진행 기록 → 결과 → 다음 단계 연결
       tasks/T0.1-<작업명>.md       작업 상세 계획 → 진행 기록 → 결과 → 다음 작업 연결
@@ -210,3 +217,4 @@ docs/
 |---|---|
 | 2026-09-28 | 전체 계획 승인. 프로젝트 폴더 `C:\mfg-it-radar` 생성. 진행 문서 규칙(10장) 추가 |
 | 2026-09-28 | M2 화면 디자인을 사용자가 Stitch로 진행하도록 변경. `design-plan.md` 대신 `docs/stitch/`에 프롬프트·맥락 md를 만들어 넘김 |
+| 2026-09-28 | 문서 체계 정비(T0.8): `docs/README.md`(문서 체계), `docs/data-sources.md`(엑셀 5개 등 원본 참조), 계획서 양식 추가. `CLAUDE.md`를 `/init` 형식으로 재작성 |
