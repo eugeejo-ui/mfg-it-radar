@@ -1,7 +1,8 @@
 # M1 원본 정제 — 단계 상세 계획서
 
-- 상태: 진행 중
+- 상태: 완료
 - 작성일: 2026-09-28
+- 완료일: 2026-09-28
 - 승인: 2026-09-28
 - 상위 문서: `docs/plans/00-master-plan.md` 7장 M1
 
@@ -90,14 +91,14 @@
 
 | ID | 작업 | 주요 산출물 | 상태 |
 |---|---|---|---|
-| T1.1 | 원본 읽기 기반과 공통 정제 함수 | `pipeline/manifest.py`(원본 찾기·무결성·재생성 명령), `pipeline/normalize.py`(이름키, 금액·날짜·O/X 파싱, KSIC 중분류, 규모 구간, 업종 표기), 표 형식 단위 테스트 | 계획 |
-| T1.2 | KISA 정제 | `pipeline/sources/kisa.py`, `kisa_disclosure`, 대상 목록(387), 인증 파싱 | 계획 |
-| T1.3 | 공정위 정제 | `pipeline/sources/ftc.py`, `group_membership`, `business_group`(계열 SI 49개사·37개 집단), 법인등록번호 로컬 캐시 | 계획 |
-| T1.4 | 배출권 정제 | `pipeline/sources/ngms.py`, `emission_target` | 계획 |
-| T1.5 | 등록공장 정제 | `pipeline/sources/factory.py`, 전국 이름별 통계, `factory`(대상 회사 이름 일치분) | 계획 |
-| T1.6 | 이름 결합과 대응표 | `pipeline/match.py`, `xwalk`, `data/manual/xwalk_overrides.csv`·`si_manual.csv`(머리글만), `review_queue.csv`, 결합 수 회귀 테스트 | 계획 |
-| T1.7 | 회사 요약·신호와 연간 빌드 명령 | `pipeline/signals.py`, `pipeline/build.py`, `pipeline/validate.py`, `pipeline/meta.py`(`source_meta`), `pipeline/jobs/annual.py`, 개인정보 차단 테스트 | 계획 |
-| T1.8 | CI와 문서 갱신 | `.github/workflows/ci.yml`, `docs/data-schema.md`(M1 실제 테이블·열), `docs/data-sources.md`, `CLAUDE.md` 명령 | 계획 |
+| T1.1 | 원본 읽기 기반과 공통 정제 함수 | `pipeline/manifest.py`(원본 찾기·무결성·재생성 명령), `pipeline/normalize.py`(이름키, 금액·날짜·O/X 파싱, KSIC 중분류, 규모 구간, 업종 표기), 표 형식 단위 테스트 | 완료 |
+| T1.2 | KISA 정제 | `pipeline/sources/kisa.py`, `kisa_disclosure`, 대상 목록(387), 인증 파싱 | 완료 |
+| T1.3 | 공정위 정제 | `pipeline/sources/ftc.py`, `group_membership`, `business_group`(계열 SI 49개사·37개 집단), 법인등록번호 로컬 캐시 | 완료 |
+| T1.4 | 배출권 정제 | `pipeline/sources/ngms.py`, `emission_target` | 완료 |
+| T1.5 | 등록공장 정제 | `pipeline/sources/factory.py`, 전국 이름별 통계, `factory`(대상 회사 이름 일치분) | 완료 |
+| T1.6 | 이름 결합과 대응표 | `pipeline/match.py`, `xwalk`, `data/manual/xwalk_overrides.csv`·`si_manual.csv`(머리글만), `review_queue.csv`, 결합 수 회귀 테스트 | 완료 |
+| T1.7 | 회사 요약·신호와 연간 빌드 명령 | `pipeline/signals.py`, `pipeline/build.py`, `pipeline/validate.py`, `pipeline/meta.py`(`source_meta`), `pipeline/jobs/annual.py`, 개인정보 차단 테스트 | 완료 |
+| T1.8 | CI와 문서 갱신 | `.github/workflows/ci.yml`, `docs/data-schema.md`(M1 실제 테이블·열), `docs/data-sources.md`, `CLAUDE.md` 명령 | 완료 |
 
 작업별 요점
 - T1.1
@@ -144,12 +145,101 @@
 
 ## 8. 진행 기록
 
-- (진행하면서 날짜별로 적음)
+- 2026-09-28 사용자 승인. 전체 계획 변경 이력에 `pipeline/manifest.py` 추가와 시도별 통계 보류를 적음
+- T1.1 원본 읽기 기반·공통 정제 함수 (TDD, 61 passed)
+- T1.2 KISA 정제
+  - 가짜 0 제거(`figures_in_attachment` 16행), 인증 인식(한글 명칭 포함)
+  - 기준 연도는 확정하지 못함
+- T1.3 공정위 정제: 개인정보 3개 열 제거, 법인등록번호는 로컬 캐시로 분리
+- T1.4 배출권 정제: KSIC 앞자리 0 복원. 업체코드 형식이 참조 문서와 다름을 발견함
+- T1.5 등록공장 정제: 시도 인식 규칙, 공백 주소 1,880행 발견
+- T1.6 이름 결합·대응표·덮어쓰기·검수 목록. 상태값 "실패"를 "제외"로 바꿈
+- T1.7 회사 요약·신호·검증 게이트·연간 빌드 명령
+  - 부동소수점 경계 문제(증감률 딱 20%)를 고침
+  - 첫 빌드를 사람 눈으로 보다가 CJ제일제당 결합 누락을 발견함 → 영문 표기 변환 규칙 추가 (T1.6 추가 기록)
+  - SK·포스코 계열 SI 수동 보완
+- T1.8 공용 fixture로 테스트 64초 → 약 29초
+  - 저장소 위생 테스트 추가, CI 구성
+  - 액션 v7·`ubuntu-24.04`로 경고 해소, 문서 갱신
+- 커밋: `905d2f7`(M1 본체), CI 설정 갱신 커밋, 결과 기록 커밋
 
 ## 9. 결과
 
-- (단계를 마친 뒤 완료 기준 대비 판정과 근거를 적음)
+| 완료 기준 | 판정 | 근거 |
+|---|---|---|
+| 원본에서 정제 결과까지 한 번에 만들어짐 | 충족 | `python -m pipeline.jobs.annual` 약 12초, 테이블 8개 + 검수 목록, 검증 게이트 통과. 3번 연속 실행해도 행 수 같음 |
+| 결과가 기획 단계 점검 수치와 같음 | 충족 후 보완 | 대상 387, 증감 351, 계열 SI 49개사·37개 집단, 배출권 772, 소속회사 3,539행 일치. 규모 구간(57/198/81/51)과 IT 투자액 사분위(17.8억/38.5억/115.5억)도 SPEC 8장과 일치. 이름 일치 125·142·334는 완전 일치 기준으로 재현한 뒤(T1.6), 영문 표기 변환 보완으로 131·145·340곳(353키)으로 기준값을 갱신함 |
+| 정제 함수가 원본 없이 검증됨 | 충족 | CI에서 원본 없이 183 passed |
+| 개인정보가 결과물에 없음 | 충족 | processed 9개 파일 검사 통과, 검증 게이트, 저장소 위생 테스트(위반 적발 확인). 법인등록번호는 `data/cache/`에만 있음 |
+| 검수할 것이 목록으로 나옴 | 충족 | `review_queue.csv`: 공장 동명 의심 4, 전년 공시와 이름 불일치 36, 업종 결측 6 |
+| GitHub에서 테스트가 자동으로 돎 | 충족 | CI 통과 (`36396032022`, `36396148345`) |
+| 문서가 실제와 맞음 | 충족 | `data-schema.md` 6장(실제 테이블), `data-sources.md`, `CLAUDE.md` 명령·기준값. 문서 수치를 빌드 결과로 다시 확인함 |
+
+계획과 달라진 점
+- 결합 규칙에 "영문 표기 변환" 추가 (완전 일치가 없을 때만, 유사도 매칭 아님)
+  - 대기업 계열사(CJ·SK·HD현대·LG 등) 누락을 막으려는 것
+  - 변환 결합 28건을 모두 확인함
+- 계열 SI 수동 보완 2건: 에스케이(주), (주)포스코디엑스 (SPEC 7장이 이름을 댄 경우)
+- 대응표 상태값: "실패" 대신 "제외"
+- `source_meta`는 7행이 아니라 6행: 빌드가 쓰는 원본이 6개
+- 계획에 없던 파일
+  - `pipeline/sources/common.py`(원본 읽기, openpyxl 경고 처리), `pipeline/ksic.py`(중분류 이름)
+  - `tests/conftest.py`(공용 fixture), `tests/test_repo_hygiene.py`(저장소 위생)
+- CI 실행 환경을 `ubuntu-24.04`로 고정하고 액션을 v7로 올림
+- KISA 수치의 기준 연도는 확정하지 못함 (M4로 넘김)
 
 ## 10. 다음 단계로 이어지는 내용
 
-- (단계를 마친 뒤 M2에 넘기는 산출물, 남은 문제, M2의 선행 조건을 적음. M2는 Stitch 핸드오프로 시작하므로 이 절의 내용이 Stitch 맥락 md의 재료가 됨)
+M2는 Stitch 핸드오프로 시작함. 이 절이 Stitch 맥락 md의 재료임.
+
+### M2에 넘기는 산출물
+
+| 산출물 | M2에서 쓰는 방식 |
+|---|---|
+| `data/processed/company.parquet` (387행) | 후보 목록 표와 필터 전부. 필터 값: 규모 구간 4개, 세부업종 24개 코드(`ksic2_label`), 공장 시도 17개 짧은 이름, 신호 태그 7개(고정 순서) |
+| `kisa_disclosure.parquet` | 브리프의 IT 여력·보안 성숙도·투자 품목 상세 (`company_id`로 2026·2025 행을 거름) |
+| `group_membership`·`business_group.parquet` | 구매 경로 블록: 기업집단, 집단 순위·규모, 계열 SI 회사명 |
+| `emission_target.parquet` | 규제 노출 블록: 할당대상 여부, KSIC |
+| `factory.parquet` (1,389행) | 생산 거점 블록: 공장 수, 시도·시군구, 산단 입주, 생산품, 동명 의심 |
+| `source_meta.parquet` | 모든 블록의 출처·기준일, 데이터 출처 페이지. `built_at`은 앱 캐시 키 |
+| `pipeline.ksic`, `pipeline.signals.SIGNAL_ORDER`, `pipeline.normalize.SIZE_BANDS` | 화면 라벨과 정렬 순서 |
+
+### 화면이 다뤄야 할 빈 값·예외 (387곳 기준)
+
+| 경우 | 건수 | 화면 문구 제안 |
+|---|---|---|
+| 상장 여부 모름 (기업집단 밖) | 256 | "DART 연결 후 표시" |
+| 세부업종 없음 | 196 | "세부업종 확인 전" (벤치마크는 M4) |
+| 전년 대비 증감 계산 불가 | 36 | "전년 공시 없음 또는 회사명 변경" |
+| 결합된 공장 없음 | 47 | "등록공장 목록에서 찾지 못함 (회사명 기준 결합)" |
+| 공장 동명 의심 | 4 | "동명 회사가 섞였을 수 있음" |
+| 투자 품목 없음 / 원문 참조 | 170 / 1 | "공시에 기재 없음" / "공시 원문 참조" |
+| 공정위 주업종이 비제조업 | 5 | 코드 이름 그대로 표시 (도매, 전문서비스 등) |
+| 대표 생산품 문자열이 김 | 다수 | 쉼표로 여러 품목이 붙어 있음 → 줄임 처리 |
+
+### M2에서는 아직 없는 블록 (DART 이후)
+
+- 최근 90일 공시 신호: M5
+- 재무 3개년: M4
+- 동종업계 벤치마크, IT 투자/매출: M4
+- → 디자인에는 자리를 두되 "준비 중" 상태를 함께 디자인해야 함
+
+### M2의 선행 조건
+
+- M2 단계 계획서를 쓰고 사용자 승인을 받음
+- 첫 작업: `docs/stitch/`에 Stitch용 프롬프트와 맥락 md를 만듦 (진행 상황, 결정, 화면 요구사항, 위 데이터·빈 값 사례, 디자인 방향, Streamlit 제약)
+- Streamlit Community Cloud 연결은 사용자 작업 (배포 시점)
+
+### 남은 문제
+
+| 항목 | 담당 | 기한 |
+|---|---|---|
+| KISA 수치의 기준 연도 (전년 실적 여부) | Claude | M4 (IT 투자/매출 전) |
+| 전년 공시와 이름 불일치 36곳 (신규 공시와 회사명 변경 구분) | Claude + 사람 | M3 (corp_code로 판별) |
+| 영문 약어만으로 붙은 공장 결합 2건 (DYP, TSE), 동명 의심 4곳 | Claude | M3 (본사 주소로 확인) |
+| 공정위 주업종이 비제조업인 5곳의 벤치마크 그룹 | Claude | M4 |
+| manifest 데이터셋 상세 주소 | Claude | M2 출처 페이지 전 |
+| 시도별 통계 4종 정제 여부 | 사용자 결정 | M2 디자인에서 |
+| OpenDART 키 발급 | 사용자 | M3 전 |
+| GitHub Secrets 등록 | 사용자 | M5 전 |
+| Streamlit Community Cloud 연결 | 사용자 | M2 배포 시점 |
