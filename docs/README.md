@@ -65,5 +65,10 @@ docs/
     M0-setup/                      완료
       phase-plan.md
       tasks/T0.1 ~ T0.8
+    M1-source-cleaning/            완료
+      phase-plan.md
+      tasks/T1.1 ~ T1.8
 data/raw/manifest.csv              원본 목록
+data/manual/*.csv                  사람이 고치는 결합 덮어쓰기·계열 SI 보완
+data/processed/review_queue.csv    빌드가 만드는 검수 목록
 ```

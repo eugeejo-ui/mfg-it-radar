@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - 제조업 IT 투자 레이더(가칭): 정보보호 공시를 낸 제조사 387곳의 IT·보안 투자, 구매 경로(계열 SI), 탄소 규제, 공장 거점, 최근 DART 공시를 모아 보여주는 비영리 공개 Streamlit 서비스임. 주 사용자는 IT 솔루션 발굴 영업임
 - 저장소: https://github.com/eugeejo-ui/mfg-it-radar (공개)
-- 현재 단계는 `docs/plans/M*/phase-plan.md` 맨 위 `- 상태:` 줄로 확인함 (M0 완료, 다음 M1 원본 정제)
+- 현재 단계는 `docs/plans/M*/phase-plan.md` 맨 위 `- 상태:` 줄로 확인함 (M1 원본 정제 완료, 다음 M2 Stitch 핸드오프)
 - 문서 체계는 `docs/README.md`, 결정과 마일스톤은 `docs/plans/00-master-plan.md`
 
 ## 명령
@@ -19,31 +19,53 @@ Git Bash 기준. 파이썬은 항상 프로젝트 가상환경을 씀 (Anaconda 
 .venv/Scripts/python -m pytest -k kisa_2026                       # 이름으로 골라 실행
 .venv/Scripts/python -m pytest -m live                            # 실제 DART 호출 테스트 (수동 전용, M3부터)
 .venv/Scripts/python -m pip install -r requirements-pipeline.txt  # 환경 재구성
+.venv/Scripts/python -m pipeline.jobs.annual --check              # 원본 → 빌드·검증만 (파일 안 씀)
+.venv/Scripts/python -m pipeline.jobs.annual                      # 원본 → data/processed/ 쓰기 (약 12초)
+.venv/Scripts/python -m pipeline.manifest check                   # 원본이 manifest와 같은지
+.venv/Scripts/python -m pipeline.manifest refresh                 # 원본 교체 후 sha256·크기 다시 씀
 ```
 
 - 한글 출력이 깨지면 명령 앞에 `PYTHONUTF8=1`을 붙임
 - `requirements.txt`는 앱(Streamlit Cloud 배포)용, `requirements-pipeline.txt`는 정제·수집·테스트용임. 둘 다 `==`로 버전을 고정함
-- 원본 무결성 테스트는 원본이 없는 환경(CI·Actions)에서 파일 검사를 건너뜀. 그곳에서는 "2 passed, 10 skipped"가 정상임
-- 앱 실행과 파이프라인 실행 명령은 해당 단계(M1, M2)에서 만들고 여기에 추가함
+- 원본 회귀 테스트는 `tests/conftest.py`의 `sources`(원본 한 번 읽기)·`built`(빌드 한 번) fixture를 씀. 원본이 없는 환경(CI·Actions)에서는 저절로 건너뜀
+- CI(`.github/workflows/ci.yml`)는 push·PR마다 `pytest -W error`를 돌림. 원본 없이도 정제 함수·결합 규칙·게이트·processed 개인정보·저장소 위생 테스트가 돎
+- 전체 테스트는 로컬 약 30초. 경고를 오류로 보는 `-W error`로도 통과해야 함
+- 앱 실행 명령은 M2에서 추가함
 
 ## 구조
 
-코드는 아직 빈 골격임(M0). 아래는 전체 계획 2~5장의 목표 구조로, 여러 파일에 걸친 흐름이라 먼저 알아 둘 것.
+M1에서 원본 정제·결합·연간 빌드까지 구현함. DART(`pipeline/dart`), 자동 갱신(daily·monthly), 앱(`app/`)은 아직 없음. 여러 파일에 걸친 흐름이라 먼저 알아 둘 것.
 
 - 데이터 흐름: 원본 파일(연 1회, 관리자 PC) → `pipeline` 연간 빌드(정제 → 결합 → 검수) → `data/processed/*.parquet` 커밋 → Streamlit 앱은 parquet만 읽음. 앱은 런타임에 DART를 부르지 않고 키도 갖지 않음
 - 자동 갱신: GitHub Actions가 매일 DART 공시, 매월 기업개황·재무를 받아 parquet을 커밋함 → Cloud에 자동 반영. Actions는 원본 파일 없이 processed 테이블과 대응표만으로 동작함
-- 회사 기본키는 DART corp_code임
-  - 공정위는 법인등록번호 = DART jurir_no로 정확 결합
-  - KISA·배출권·공장은 이름 정규화로 결합 → 대응표(xwalk)와 사람 검수를 거침
+- 연간 빌드 순서 (`pipeline/build.py`)
+  - `sources/*` 정제
+  - 대상 선정: 최신 공시연도 제조업
+  - `match.build_xwalk` → `apply_overrides` → `review_queue`
+  - `assemble_company` → `validate.validate_all`(실패 시 아무 파일도 안 씀) → parquet 8개 + `review_queue.csv`
+- 회사 식별자 `company_id`
+  - 지금은 KISA 이름키임
+  - M3에서 `build.assign_company_id` 한 곳만 DART corp_code로 바꾸고, 앱은 `company_id`만 씀
+- 결합
+  - 공정위는 M3부터 법인등록번호 = DART jurir_no로 정확 결합함
+  - KISA·배출권·공장은 이름키로 결합함. 완전 일치가 먼저이고, 없으면 영문 표기 변환 키로 맞춤 (`CJ제일제당` ↔ `씨제이제일제당`)
+  - 유사도 매칭은 쓰지 않음
   - `data/manual/xwalk_overrides.csv`가 자동 결과보다 항상 우선함
+  - 대응표 `use`가 참인 행만 빌드에서 결합에 쓰임
+  - 공장은 이름 하나에 전국 20곳 이상이면 동명 의심으로 표시함 (결합은 유지)
+- 계열 SI는 공정위 업종코드 J620 + `data/manual/si_manual.csv`(SK·포스코처럼 코드로 안 잡히는 회사)임
+- pandas 3 주의
+  - pyarrow 문자열 열에 `groupby().agg(list/set)`을 쓰면 결과가 문자열로 바뀜 → 딕셔너리로 직접 모음 (`build._by_company`)
+  - 정제 함수의 텍스트 출력은 결측이 `pd.NA`인 `"string"` dtype으로 통일함
 - 원본은 `data/raw/manifest.csv`의 source_id로 찾음. 파일명을 코드에 쓰지 않고, CSV 인코딩도 manifest 값을 씀
 - 패키지 역할
-  - `pipeline/sources`: 원본별 정제
-  - `pipeline/dart`: API 클라이언트
+  - `pipeline/sources`: 원본별 정제 (`common.read_excel`·`read_csv`가 manifest로 원본을 찾음)
+  - `pipeline/normalize`·`match`·`signals`·`validate`·`meta`·`ksic`: 공통 정제 규칙, 결합, 신호 태그, 검증 게이트, 출처 테이블, KSIC 중분류 이름
+  - `pipeline/dart`: API 클라이언트 (M3)
   - `pipeline/jobs`: annual·daily·monthly
   - `app/pages`: 후보 목록·기업 브리프·데이터 출처
   - `app/blocks`: 브리프 블록별 1파일
-- 결합 경로와 테이블 설계: `docs/data-schema.md`
+- 결합 경로, 정제 결과 테이블 8개의 열: `docs/data-schema.md` 6장
 
 ## 원본 데이터
 
@@ -58,9 +80,11 @@ Git Bash 기준. 파이썬은 항상 프로젝트 가상환경을 씀 (Anaconda 
 
 - 산단공 CSV 5개는 cp949임. 등록공장 파일은 동명 회사가 섞여 있음 (결합 규칙은 data-schema)
 - 회사명 정규화: SPEC 7장 정규식 + 영문 대문자화
-- M1 회귀 기준값(pandas 3.0.6에서 확인)
-  - 정보보호 제조업 387, 2개년 증감 계산 351
-  - 이름 일치: 공정위 125, 배출권 142, 공장 334
+- 회귀 기준값 (pandas 3.0.6, 2026 원본 기준. 원본이 바뀌면 이유와 함께 고침)
+  - 대상 387, 증감 계산 351
+  - 결합: 전년 공시 351, 공정위 131, 배출권 145, 공장 353키·340곳, 영문 표기 변환 28
+  - 신호: IT +20% 102, CISO 겸직 318, 외부 보안인력 200, 인증 없음 260, 계열 SI 없음 315, 배출권 145, 2개 이상 시도 214
+  - 검수 목록: 공장 동명 의심 4, 전년 공시와 이름 불일치 36, 업종 결측 6
 
 ## 진행 문서 규칙 (반드시 따름)
 
