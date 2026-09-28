@@ -1,0 +1,21 @@
+# 원본 파일은 커밋하지 않음 (목록과 지문만 manifest.csv로 추적)
+data/raw/*
+!data/raw/manifest.csv
+
+# 연간 로컬 빌드 캐시 (법인등록번호가 들어갈 수 있음)
+data/cache/
+
+# 비밀 값
+.env
+.streamlit/secrets.toml
+
+# 파이썬
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 기타
+*.log
+Thumbs.db
+.DS_Store

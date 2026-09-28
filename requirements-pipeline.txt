@@ -1,0 +1,6 @@
+# 원본 정제·DART 수집·테스트용
+-r requirements.txt
+openpyxl==3.1.5
+requests==2.34.2
+python-dotenv==1.2.3
+pytest==9.1.1

@@ -1,0 +1,11 @@
+source_id,file_name,provider,portal_url,reference_date,encoding,sha256,bytes,rows,note
+kisa_2025,2025_정보보호_공시_이행_기업리스트.xlsx,KISA,https://isds.kisa.or.kr,2025 공시,,d1eeed2f0d6d8c61426f6c2bf5dbd951b9e4d00e1b8a11414c206e76ec1a2d20,260473,773,금액 단위 원. 기업명만 있고 법인번호 없음
+kisa_2026,2026_정보보호_공시_이행_기업리스트.xlsx,KISA,https://isds.kisa.or.kr,2026 공시,,42b1d34aa8c15fa9da671a8480515bf5186fb0b776332d1f0150691563a422eb,304120,826,금액 단위 원. 기업명만 있고 법인번호 없음. 업종 결측 6행
+ftc_affiliates,소속회사 개요.xlsx,공정거래위원회,https://www.egroup.go.kr,2026-05,,032f9d437f4e0ade8ceb0575a7c82c413a3dd53e5afea4c25bdb9bdf41571988,517353,3539,"재무 백만원·개별 기준, 쉼표 문자열. 법인등록번호 중복 18건은 두 집단 동시 소속. 대표자·법인등록번호·사업자등록번호는 비노출"
+ftc_groups,기업집단별 개요.xlsx,공정거래위원회,https://www.egroup.go.kr,2026,,ac942924c51000c0bd5f343f5412ef85bb27128bf6360f3d739c101a152dceda,14747,102,상장·비상장 소속회사수 열은 전부 0이라 쓰지 않음
+ngms_emission,배출권거래제 할당대상업체 현황_260101기준.xlsx,온실가스종합정보센터(NGMS),https://ngms.gir.go.kr,2026-01-01,,3f63b2f6e636529144d40608b980cf972f040326a278fa1cc65b6f6af74a27d4,42726,772,"첫 열이 비어 있고 2행이 빈 행 → header=0, skiprows=[1] 후 첫 열 제외"
+kicox_factories,한국산업단지공단_전국등록공장현황_등록공장현황자료_20241231.csv,한국산업단지공단(공공데이터포털),https://www.data.go.kr,2024-12-31,cp949,2858c56a90237f1346b7c225e9f7d1b295b28ee9c43aebeea92c02fe8172e629,21265082,217048,"회사명 기준 결합만 가능, 동명 회사 섞임"
+kicox_region_scale,한국산업단지공단_공장등록현황통계_시도별 공장규모 현황_20260831.csv,한국산업단지공단(공공데이터포털),https://www.data.go.kr,2026-08-31,cp949,31a8346c63b5d38ed1b6e895e92013814602ed776fd87a34df83e1ef3369b479,446,4,기업 결합 불가. 규모 라벨이 뒤바뀐 것으로 보임 → 확인 전 사용 보류. 광주·전남 분리
+kicox_region_area,한국산업단지공단_공장등록현황통계_시도별 공장면적 현황_20260831.csv,한국산업단지공단(공공데이터포털),https://www.data.go.kr,2026-08-31,cp949,f28a772fd0b1861f4bf5809c7af82a4d5fb2dfabf94bc956ceb0c1fb52428fea,722,3,기업 결합 불가. 전남광주 합산 열
+kicox_region_status,한국산업단지공단_공장등록현황통계_시도별 공장상태 현황_20260831.csv,한국산업단지공단(공공데이터포털),https://www.data.go.kr,2026-08-31,cp949,d4aa60912b6b510a625ca1b07b5ae556d108c2b59273516bdcc1c1d46707df81,390,4,기업 결합 불가. 전남광주 합산 열
+kicox_region_industry,한국산업단지공단_공장등록현황통계_시도별 업종별 현황_20260831.csv,한국산업단지공단(공공데이터포털),https://www.data.go.kr,2026-08-31,cp949,ba3cbe15cd17d78863c92ee0f87241bd815d7d19d32f38e68e8fc45c5380b954,2670,26,기업 결합 불가. 전남광주 합산 열
